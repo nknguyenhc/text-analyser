@@ -6,6 +6,23 @@
   align-items: center;
 }
 
+.charts {
+  display: flex;
+  flex-direction: row;
+  gap: 40px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  padding: 40px 0px;
+}
+
+.chart {
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+}
+
 p {
   height: fit-content;
 }

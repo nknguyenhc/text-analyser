@@ -110,16 +110,27 @@ const App = () => {
           </Typography>
         ))}
       </Grid>
-      <BarChart width={300} height={300} data={textCountData}>
-        <XAxis dataKey="name" />
-        <YAxis />
-        <Tooltip />
-        <Bar
-          dataKey="count"
-          fill="purple"
-          activeBar={<Rectangle fill="pink" stroke="blue" />}
-        />
-      </BarChart>
+      <div className="charts">
+        <div className="chart">
+          <Typography variant="h4" component="h2" gutterBottom>
+            Total text counts
+          </Typography>
+          <Typography paragraph>
+            This is the total text counts for each person in the chat. Each text
+            bubble is counted as one text.
+          </Typography>
+          <BarChart width={300} height={300} data={textCountData}>
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Bar
+              dataKey="count"
+              fill="purple"
+              activeBar={<Rectangle fill="pink" stroke="blue" />}
+            />
+          </BarChart>
+        </div>
+      </div>
     </div>
   );
 };
