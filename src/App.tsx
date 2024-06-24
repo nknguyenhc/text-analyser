@@ -111,26 +111,41 @@ const App = () => {
         ))}
       </Grid>
       <div className="charts">
-        <div className="chart">
-          <Typography variant="h4" component="h2" gutterBottom>
-            Total text counts
-          </Typography>
-          <Typography paragraph>
-            This is the total text counts for each person in the chat. Each text
-            bubble is counted as one text.
-          </Typography>
-          <BarChart width={300} height={300} data={textCountData}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Bar
-              dataKey="count"
-              fill="purple"
-              activeBar={<Rectangle fill="pink" stroke="blue" />}
-            />
-          </BarChart>
-        </div>
+        <Chart
+          title="Total text counts"
+          explanation="This is the total text counts for each person in the chat. Each text bubble is counted as one text."
+          data={textCountData}
+        />
       </div>
+    </div>
+  );
+};
+
+const Chart = ({
+  title,
+  explanation,
+  data,
+}: {
+  title: string;
+  explanation: string;
+  data: { name: string; count: number }[];
+}): JSX.Element => {
+  return (
+    <div className="chart">
+      <Typography variant="h4" component="h2" gutterBottom>
+        {title}
+      </Typography>
+      <Typography paragraph>{explanation}</Typography>
+      <BarChart width={300} height={300} data={data}>
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Bar
+          dataKey="count"
+          fill="purple"
+          activeBar={<Rectangle fill="pink" stroke="blue" />}
+        />
+      </BarChart>
     </div>
   );
 };
