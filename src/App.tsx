@@ -11,7 +11,9 @@ type TextCounts = {
 const App = () => {
   const [files, setFiles] = useState<File[] | undefined>();
   const [errors, setErrors] = useState<string[]>([]);
+  const [isResultAvailable, setIsResultAvailable] = useState<boolean>(false);
   const [textCounts, setTextCounts] = useState<TextCounts>({});
+  const [textGroupCounts, setTextGroupCounts] = useState<TextCounts>({});
 
   const filesName = useMemo<string>(() => {
     if (!files) {
@@ -34,8 +36,20 @@ const App = () => {
     }));
   }, [textCounts]);
 
+  const textGroupCountsData = useMemo(() => {
+    return Object.entries(textGroupCounts).map(([name, count]) => ({
+      name,
+      count,
+    }));
+  }, [textGroupCounts]);
+
   const readFile = useCallback(
-    async (file: File, textCounts: TextCounts, errors: string[]) => {
+    async (
+      file: File,
+      textCounts: TextCounts,
+      textGroupCounts: TextCounts,
+      errors: string[]
+    ) => {
       const reader = new FileReader();
       return new Promise<void>((resolve) => {
         reader.onload = (e) => {
@@ -55,6 +69,9 @@ const App = () => {
           for (const [name, count] of Object.entries(result.textCounts)) {
             textCounts[name] = (textCounts[name] || 0) + count;
           }
+          for (const [name, count] of Object.entries(result.textGroupCounts)) {
+            textGroupCounts[name] = (textGroupCounts[name] || 0) + count;
+          }
           resolve();
         };
         reader.readAsText(file);
@@ -67,17 +84,21 @@ const App = () => {
     async (e: ChangeEvent<HTMLInputElement>) => {
       const selectedFiles = e.target.files;
       if (!selectedFiles) {
+        setIsResultAvailable(false);
         return;
       }
       const files = Array.from(selectedFiles);
       const errors: string[] = [];
       const textCounts: TextCounts = {};
+      const textGroupCounts: TextCounts = {};
       for (const file of files) {
-        await readFile(file, textCounts, errors);
+        await readFile(file, textCounts, textGroupCounts, errors);
       }
+      setIsResultAvailable(true);
       setFiles(files);
       setErrors(errors);
       setTextCounts(textCounts);
+      setTextGroupCounts(textGroupCounts);
     },
     [readFile]
   );
@@ -110,13 +131,20 @@ const App = () => {
           </Typography>
         ))}
       </Grid>
-      <div className="charts">
-        <Chart
-          title="Total text counts"
-          explanation="This is the total text counts for each person in the chat. Each text bubble is counted as one text."
-          data={textCountData}
-        />
-      </div>
+      {isResultAvailable && (
+        <div className="charts">
+          <Chart
+            title="Total text counts"
+            explanation="This is the total text counts for each person in the chat. Each text bubble is counted as one text."
+            data={textCountData}
+          />
+          <Chart
+            title="Total text group counts"
+            explanation="This is the total counts of groups of text for each person. Multiple consecutive texts at once are counted as one group."
+            data={textGroupCountsData}
+          />
+        </div>
+      )}
     </div>
   );
 };
@@ -132,10 +160,12 @@ const Chart = ({
 }): JSX.Element => {
   return (
     <div className="chart">
-      <Typography variant="h4" component="h2" gutterBottom>
-        {title}
-      </Typography>
-      <Typography paragraph>{explanation}</Typography>
+      <div className="chart-text">
+        <Typography variant="h4" component="h2" gutterBottom>
+          {title}
+        </Typography>
+        <Typography paragraph>{explanation}</Typography>
+      </div>
       <BarChart width={300} height={300} data={data}>
         <XAxis dataKey="name" />
         <YAxis />

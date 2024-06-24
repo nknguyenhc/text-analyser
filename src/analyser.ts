@@ -1,15 +1,14 @@
+type Record = {
+  [key: string]: number;
+};
+
 type AnalyserResult = {
   success: boolean;
   error?: string;
   result?: {
-    textCounts: {
-      [key: string]: number;
-    };
+    textCounts: Record;
+    textGroupCounts: Record;
   };
-};
-
-type Record = {
-  [key: string]: number;
 };
 
 const analyse = (filename: string, text: string): AnalyserResult => {
@@ -24,6 +23,7 @@ const analyse = (filename: string, text: string): AnalyserResult => {
   }
 
   const textCounts: Record = {};
+  const textGroupCounts: Record = {};
   let currName = undefined;
   for (const message of allMessages) {
     const classList = Array.from(message.classList);
@@ -37,6 +37,7 @@ const analyse = (filename: string, text: string): AnalyserResult => {
     const name = message.querySelector(".from_name")?.textContent?.trim();
     if (name) {
       textCounts[name] = (textCounts[name] || 0) + 1;
+      textGroupCounts[name] = (textGroupCounts[name] || 0) + 1;
       currName = name;
     }
   }
@@ -45,6 +46,7 @@ const analyse = (filename: string, text: string): AnalyserResult => {
     success: true,
     result: {
       textCounts,
+      textGroupCounts,
     },
   };
 };
