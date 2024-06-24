@@ -2,6 +2,7 @@ import { Button, Grid, Typography } from "@mui/material";
 import { ChangeEvent, useCallback, useMemo, useState } from "react";
 import "./App.scss";
 import analyse from "./analyser";
+import { Bar, BarChart, Rectangle, Tooltip, XAxis, YAxis } from "recharts";
 
 type TextCounts = {
   [key: string]: number;
@@ -10,6 +11,7 @@ type TextCounts = {
 const App = () => {
   const [files, setFiles] = useState<File[] | undefined>();
   const [errors, setErrors] = useState<string[]>([]);
+  const [textCounts, setTextCounts] = useState<TextCounts>({});
 
   const filesName = useMemo<string>(() => {
     if (!files) {
@@ -24,6 +26,13 @@ const App = () => {
       return name;
     }
   }, [files]);
+
+  const textCountData = useMemo(() => {
+    return Object.entries(textCounts).map(([name, count]) => ({
+      name,
+      count,
+    }));
+  }, [textCounts]);
 
   const readFile = useCallback(
     async (file: File, textCounts: TextCounts, errors: string[]) => {
@@ -69,6 +78,8 @@ const App = () => {
       }
       setFiles(files);
       setErrors(errors);
+      setTextCounts(textCounts);
+      console.log(textCounts);
     },
     [readFile]
   );
@@ -101,6 +112,16 @@ const App = () => {
           </Typography>
         ))}
       </Grid>
+      <BarChart width={300} height={300} data={textCountData}>
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Bar
+          dataKey="count"
+          fill="purple"
+          activeBar={<Rectangle fill="pink" stroke="blue" />}
+        />
+      </BarChart>
     </div>
   );
 };
