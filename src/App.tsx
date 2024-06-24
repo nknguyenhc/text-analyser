@@ -1,30 +1,77 @@
 import { Button, Grid, Typography } from "@mui/material";
-import { ChangeEvent, useCallback, useState } from "react";
+import { ChangeEvent, useCallback, useMemo, useState } from "react";
 import "./App.scss";
 import analyse from "./analyser";
 
-const App = () => {
-  const [file, setFile] = useState<File | null>(null);
-  const [error, setError] = useState<string | null>(null);
+type TextCounts = {
+  [key: string]: number;
+};
 
-  const handleFileChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      // Console log the content of the selected file
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const fileContent = e.target?.result;
-        if (typeof fileContent !== "string") {
-          setError("File content is not a string");
-          return;
-        }
-        const analysisResult = analyse(fileContent);
-        console.log(analysisResult);
-      };
-      reader.readAsText(selectedFile);
-      setFile(selectedFile);
+const App = () => {
+  const [files, setFiles] = useState<File[] | undefined>();
+  const [errors, setErrors] = useState<string[]>([]);
+
+  const filesName = useMemo<string>(() => {
+    if (!files) {
+      return "No files selected";
     }
-  }, []);
+    const name = Array.from(files)
+      .map((file) => file.name)
+      .join(", ");
+    if (name.length > 100) {
+      return name.slice(0, 90) + "...";
+    } else {
+      return name;
+    }
+  }, [files]);
+
+  const readFile = useCallback(
+    async (file: File, textCounts: TextCounts, errors: string[]) => {
+      const reader = new FileReader();
+      return new Promise<void>((resolve) => {
+        reader.onload = (e) => {
+          const fileContent = e.target?.result;
+          if (typeof fileContent !== "string") {
+            errors.push("Failed to read file content");
+            resolve();
+            return;
+          }
+          const analysisResult = analyse(file.name, fileContent);
+          console.log(analysisResult);
+          if (!analysisResult.success) {
+            errors.push(analysisResult.error!);
+            resolve();
+            return;
+          }
+          const result = analysisResult.result!;
+          for (const [name, count] of Object.entries(result.textCounts)) {
+            textCounts[name] = (textCounts[name] || 0) + count;
+          }
+          resolve();
+        };
+        reader.readAsText(file);
+      });
+    },
+    []
+  );
+
+  const handleFileChange = useCallback(
+    async (e: ChangeEvent<HTMLInputElement>) => {
+      const selectedFiles = e.target.files;
+      if (!selectedFiles) {
+        return;
+      }
+      const files = Array.from(selectedFiles);
+      const errors: string[] = [];
+      const textCounts: TextCounts = {};
+      for (const file of files) {
+        await readFile(file, textCounts, errors);
+      }
+      setFiles(files);
+      setErrors(errors);
+    },
+    [readFile]
+  );
 
   return (
     <div className="main">
@@ -36,7 +83,7 @@ const App = () => {
           <Button component="span">Upload File</Button>
         </label>
         <Typography sx={{ width: "300px", textAlign: "center" }}>
-          {file ? file.name : "No file selected"}
+          {filesName}
         </Typography>
         <input
           id="file-upload"
@@ -47,11 +94,13 @@ const App = () => {
           style={{ display: "none" }}
         />
       </Grid>
-      {error && (
-        <Typography variant="body1" color="error" sx={{ padding: "10px" }}>
-          {error}
-        </Typography>
-      )}
+      <Grid container alignItems="center" justifyContent="center" spacing={2}>
+        {errors.map((error, index) => (
+          <Typography key={index} color="error">
+            {error}
+          </Typography>
+        ))}
+      </Grid>
     </div>
   );
 };
