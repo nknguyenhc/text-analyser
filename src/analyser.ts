@@ -24,10 +24,20 @@ const analyse = (filename: string, text: string): AnalyserResult => {
   }
 
   const textCounts: Record = {};
+  let currName = undefined;
   for (const message of allMessages) {
+    const classList = Array.from(message.classList);
+    if (classList.includes("joined")) {
+      if (currName) {
+        textCounts[currName] = (textCounts[currName] || 0) + 1;
+        continue;
+      }
+    }
+
     const name = message.querySelector(".from_name")?.textContent?.trim();
     if (name) {
       textCounts[name] = (textCounts[name] || 0) + 1;
+      currName = name;
     }
   }
 

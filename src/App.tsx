@@ -46,7 +46,6 @@ const App = () => {
             return;
           }
           const analysisResult = analyse(file.name, fileContent);
-          console.log(analysisResult);
           if (!analysisResult.success) {
             errors.push(analysisResult.error!);
             resolve();
@@ -79,7 +78,6 @@ const App = () => {
       setFiles(files);
       setErrors(errors);
       setTextCounts(textCounts);
-      console.log(textCounts);
     },
     [readFile]
   );
