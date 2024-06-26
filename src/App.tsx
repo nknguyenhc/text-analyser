@@ -1,8 +1,18 @@
 import { Button, Grid, Typography } from "@mui/material";
 import { ChangeEvent, useCallback, useMemo, useState } from "react";
 import "./App.scss";
-import analyse from "./analyser";
-import { Bar, BarChart, Rectangle, Tooltip, XAxis, YAxis } from "recharts";
+import analyse, { FrequencyRecord } from "./analyser";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Line,
+  LineChart,
+  Rectangle,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 type TextCounts = {
   [key: string]: number;
@@ -14,6 +24,9 @@ const App = () => {
   const [isResultAvailable, setIsResultAvailable] = useState<boolean>(false);
   const [textCounts, setTextCounts] = useState<TextCounts>({});
   const [textGroupCounts, setTextGroupCounts] = useState<TextCounts>({});
+  const [dayFrequency, setDayFrequency] = useState<FrequencyRecord[]>([]);
+  const [monthFrequency, setMonthFrequency] = useState<FrequencyRecord[]>([]);
+  const [yearFrequency, setYearFrequency] = useState<FrequencyRecord[]>([]);
 
   const filesName = useMemo<string>(() => {
     if (!files) {
@@ -43,13 +56,32 @@ const App = () => {
     }));
   }, [textGroupCounts]);
 
+  const selectiveAddition = useCallback(
+    (data: FrequencyRecord[], newData: FrequencyRecord[]) => {
+      if (data.length === 0) {
+        data.push(...newData);
+        return;
+      }
+      console.log(data, newData);
+      if (data[data.length - 1].name === newData[0].name) {
+        data[data.length - 1].count += newData[0].count;
+        data.push(...newData.slice(1));
+      } else {
+        data.push(...newData);
+      }
+    },
+    []
+  );
+
   const readFile = useCallback(
     async (
       file: File,
       textCounts: TextCounts,
       textGroupCounts: TextCounts,
+      frequencies: FrequencyRecord[][],
       errors: string[]
     ) => {
+      const [dayFrequency, monthFrequency, yearFrequency] = frequencies;
       const reader = new FileReader();
       return new Promise<void>((resolve) => {
         reader.onload = (e) => {
@@ -72,12 +104,15 @@ const App = () => {
           for (const [name, count] of Object.entries(result.textGroupCounts)) {
             textGroupCounts[name] = (textGroupCounts[name] || 0) + count;
           }
+          selectiveAddition(dayFrequency, result.textFrequencies.days);
+          selectiveAddition(monthFrequency, result.textFrequencies.months);
+          selectiveAddition(yearFrequency, result.textFrequencies.years);
           resolve();
         };
         reader.readAsText(file);
       });
     },
-    []
+    [selectiveAddition]
   );
 
   const handleFileChange = useCallback(
@@ -91,14 +126,21 @@ const App = () => {
       const errors: string[] = [];
       const textCounts: TextCounts = {};
       const textGroupCounts: TextCounts = {};
+      const dayFrequency: FrequencyRecord[] = [];
+      const monthFrequency: FrequencyRecord[] = [];
+      const yearFrequency: FrequencyRecord[] = [];
+      const frequencies = [dayFrequency, monthFrequency, yearFrequency];
       for (const file of files) {
-        await readFile(file, textCounts, textGroupCounts, errors);
+        await readFile(file, textCounts, textGroupCounts, frequencies, errors);
       }
       setIsResultAvailable(true);
       setFiles(files);
       setErrors(errors);
       setTextCounts(textCounts);
       setTextGroupCounts(textGroupCounts);
+      setDayFrequency(dayFrequency);
+      setMonthFrequency(monthFrequency);
+      setYearFrequency(yearFrequency);
     },
     [readFile]
   );
@@ -143,6 +185,21 @@ const App = () => {
             explanation="This is the total counts of groups of text for each person. Multiple consecutive texts at once are counted as one group."
             data={textGroupCountsData}
           />
+          <Graph
+            title="Day frequency"
+            explanation="This is the frequency of texts sent over the last few days."
+            data={dayFrequency}
+          />
+          <Graph
+            title="Month frequency"
+            explanation="This is the frequency of texts sent over the last few months."
+            data={monthFrequency}
+          />
+          <Graph
+            title="Year frequency"
+            explanation="This is the frequency of texts sent over the last few years."
+            data={yearFrequency}
+          />
         </div>
       )}
     </div>
@@ -156,10 +213,10 @@ const Chart = ({
 }: {
   title: string;
   explanation: string;
-  data: { name: string; count: number }[];
+  data: FrequencyRecord[];
 }): JSX.Element => {
   return (
-    <div className="chart">
+    <div className="chart chart-md">
       <div className="chart-text">
         <Typography variant="h4" component="h2" gutterBottom>
           {title}
@@ -176,6 +233,38 @@ const Chart = ({
           activeBar={<Rectangle fill="pink" stroke="blue" />}
         />
       </BarChart>
+    </div>
+  );
+};
+
+const Graph = ({
+  title,
+  explanation,
+  data,
+}: {
+  title: string;
+  explanation: string;
+  data: { name: string; count: number }[];
+}): JSX.Element => {
+  const displayData = useMemo(() => {
+    return data.slice(-11);
+  }, [data]);
+
+  return (
+    <div className="chart chart-lg">
+      <div className="chart-text">
+        <Typography variant="h4" component="h2" gutterBottom>
+          {title}
+        </Typography>
+        <Typography paragraph>{explanation}</Typography>
+      </div>
+      <LineChart width={500} height={300} data={displayData}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Line type="monotone" dataKey="count" stroke="blue" />
+      </LineChart>
     </div>
   );
 };

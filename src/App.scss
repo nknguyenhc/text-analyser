@@ -12,15 +12,24 @@
   gap: 40px;
   flex-wrap: wrap;
   padding: 40px 0px;
+  justify-content: center;
+  max-width: 1400px;
 }
 
 .chart {
-  width: 400px;
   display: flex;
   flex-direction: column;
   gap: 15px;
   align-items: center;
   justify-content: space-between;
+
+  &-md {
+    width: 400px;
+  }
+
+  &-lg {
+    width: 600px;
+  }
 
   &-text {
     display: flex;
