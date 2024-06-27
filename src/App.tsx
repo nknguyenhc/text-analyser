@@ -62,7 +62,6 @@ const App = () => {
         data.push(...newData);
         return;
       }
-      console.log(data, newData);
       if (data[data.length - 1].name === newData[0].name) {
         data[data.length - 1].count += newData[0].count;
         data.push(...newData.slice(1));

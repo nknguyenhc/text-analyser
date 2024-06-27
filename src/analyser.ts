@@ -100,7 +100,6 @@ const getFrequency = (doc: HTMLDivElement): TextFrequencies => {
       yearRecord[yearNumber] = (yearRecord[yearNumber] || 0) + 1;
     }
   }
-  console.log("yearRecord", yearRecord);
   return {
     days: Object.entries(dayRecord)
       .sort(([time1], [time2]) => parseInt(time1) - parseInt(time2))
