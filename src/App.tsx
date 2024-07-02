@@ -174,8 +174,7 @@ const App = () => {
   const handleFileChange = useCallback(
     async (e: ChangeEvent<HTMLInputElement>) => {
       const selectedFiles = e.target.files;
-      if (!selectedFiles) {
-        setIsResultAvailable(false);
+      if (!selectedFiles || selectedFiles.length === 0) {
         return;
       }
       const files = Array.from(selectedFiles);
