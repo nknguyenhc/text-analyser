@@ -184,9 +184,12 @@ const getFrequency = (doc: HTMLDivElement): TextFrequencies => {
       monthRecord[monthNumber] = (monthRecord[monthNumber] || 0) + 1;
       yearRecord[yearNumber] = (yearRecord[yearNumber] || 0) + 1;
 
-      const name = message.querySelector(".from_name")?.textContent?.trim();
-      if (name) {
-        currName = name;
+      const classList = Array.from(message.classList);
+      if (!classList.includes("joined")) {
+        const name = message.querySelector(".from_name")?.textContent?.trim();
+        if (name) {
+          currName = name;
+        }
       }
       dayIndividualRecord[dayNumber][currName] =
         (dayIndividualRecord[dayNumber][currName] || 0) + 1;
