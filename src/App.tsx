@@ -6,6 +6,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Legend,
   Line,
   LineChart,
   Rectangle,
@@ -13,9 +14,14 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { getRandomColour } from "./utils";
 
 type TextCounts = {
   [key: string]: number;
+};
+
+type ColourMap = {
+  [key: string]: string;
 };
 
 const App = () => {
@@ -65,6 +71,14 @@ const App = () => {
       count,
     }));
   }, [textGroupCounts]);
+
+  const colourMap = useMemo<ColourMap>(() => {
+    const map: ColourMap = {};
+    for (const name of names) {
+      map[name] = getRandomColour();
+    }
+    return map;
+  }, [names]);
 
   const selectiveAddition = useCallback(
     (data: FrequencyRecord[], newData: FrequencyRecord[]) => {
@@ -280,19 +294,19 @@ const App = () => {
             title="Day individual frequency"
             explanation="This is the frequency of texts sent by each person over the last few days."
             data={dayIndividualFrequency}
-            names={names}
+            colourMap={colourMap}
           />
           <MultiGraph
             title="Month individual frequency"
             explanation="This is the frequency of texts sent by each person over the last few months."
             data={monthIndividualFrequency}
-            names={names}
+            colourMap={colourMap}
           />
           <MultiGraph
             title="Year individual frequency"
             explanation="This is the frequency of texts sent by each person over the last few years."
             data={yearIndividualFrequency}
-            names={names}
+            colourMap={colourMap}
           />
         </div>
       )}
@@ -310,14 +324,14 @@ const Chart = ({
   data: FrequencyRecord[];
 }): JSX.Element => {
   return (
-    <div className="chart chart-md">
+    <div className="chart chart-lg">
       <div className="chart-text">
         <Typography variant="h4" component="h2" gutterBottom>
           {title}
         </Typography>
         <Typography paragraph>{explanation}</Typography>
       </div>
-      <BarChart width={300} height={300} data={data}>
+      <BarChart width={500} height={300} data={data}>
         <XAxis dataKey="name" />
         <YAxis />
         <Tooltip />
@@ -367,16 +381,22 @@ const MultiGraph = ({
   title,
   explanation,
   data,
-  names,
+  colourMap,
 }: {
   title: string;
   explanation: string;
   data: FrequenciesRecord[];
-  names: string[];
+  colourMap: ColourMap;
 }): JSX.Element => {
   const displayData = useMemo(() => {
-    return data.slice(-11);
-  }, [data]);
+    return data.slice(-11).map((record) => {
+      const newRecord: FrequenciesRecord = { name: record.name };
+      for (const name of Object.keys(colourMap)) {
+        newRecord[name] = record[name] || "0";
+      }
+      return newRecord;
+    });
+  }, [data, colourMap]);
 
   return (
     <div className="chart chart-lg">
@@ -390,9 +410,10 @@ const MultiGraph = ({
           <XAxis dataKey="name" />
           <YAxis />
           <Tooltip />
-          {names.map((name) => (
-            <Line type="monotone" dataKey={name} stroke="blue" />
+          {Object.entries(colourMap).map(([name, colour]) => (
+            <Line type="monotone" dataKey={name} stroke={colour} key={name} />
           ))}
+          <Legend />
         </LineChart>
       </div>
     </div>
