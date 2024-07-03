@@ -175,14 +175,40 @@ const getFrequency = (doc: HTMLDivElement): TextFrequencies => {
       if (!isDateString(timeString)) {
         continue;
       }
-      dayNumber = dateStringToDayNumber(timeString);
-      monthNumber = dateStringToMonthNumber(timeString);
-      yearNumber = dateStringToYearNumber(timeString);
+      const newDayNumber = dateStringToDayNumber(timeString);
+      const newMonthNumber = dateStringToMonthNumber(timeString);
+      const newYearNumber = dateStringToYearNumber(timeString);
 
-      dayIndividualRecord[dayNumber] = dayIndividualRecord[dayNumber] || {};
-      monthIndividualRecord[monthNumber] =
-        monthIndividualRecord[monthNumber] || {};
-      yearIndividualRecord[yearNumber] = yearIndividualRecord[yearNumber] || {};
+      if (dayNumber !== 0) {
+        for (let i = dayNumber + 1; i <= newDayNumber; i++) {
+          dayRecord[i] = 0;
+          dayIndividualRecord[i] = dayIndividualRecord[i] || {};
+        }
+      } else {
+        dayIndividualRecord[newDayNumber] = {};
+      }
+
+      if (monthNumber !== 0) {
+        for (let i = monthNumber + 1; i <= newMonthNumber; i++) {
+          monthRecord[i] = 0;
+          monthIndividualRecord[i] = monthIndividualRecord[i] || {};
+        }
+      } else {
+        monthIndividualRecord[newMonthNumber] = {};
+      }
+
+      if (yearNumber !== 0) {
+        for (let i = yearNumber + 1; i <= newYearNumber; i++) {
+          yearRecord[i] = 0;
+          yearIndividualRecord[i] = yearIndividualRecord[i] || {};
+        }
+      } else {
+        yearIndividualRecord[newYearNumber] = {};
+      }
+
+      dayNumber = newDayNumber;
+      monthNumber = newMonthNumber;
+      yearNumber = newYearNumber;
     } else {
       dayRecord[dayNumber] = (dayRecord[dayNumber] || 0) + 1;
       monthRecord[monthNumber] = (monthRecord[monthNumber] || 0) + 1;
