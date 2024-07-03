@@ -190,13 +190,8 @@ const App = () => {
     [selectiveAddition, selectiveFrequenciesAddition]
   );
 
-  const handleFileChange = useCallback(
-    async (e: ChangeEvent<HTMLInputElement>) => {
-      const selectedFiles = e.target.files;
-      if (!selectedFiles || selectedFiles.length === 0) {
-        return;
-      }
-      const files = Array.from(selectedFiles);
+  const handleAnalyseFile = useCallback(
+    async (files: File[]) => {
       const errors: string[] = [];
       const textCounts: TextCounts = {};
       const textGroupCounts: TextCounts = {};
@@ -240,6 +235,25 @@ const App = () => {
     [readFile]
   );
 
+  const handleFileChange = useCallback(
+    async (e: ChangeEvent<HTMLInputElement>) => {
+      const selectedFiles = e.target.files;
+      if (!selectedFiles || selectedFiles.length === 0) {
+        return;
+      }
+      const files = Array.from(selectedFiles);
+      handleAnalyseFile(files);
+    },
+    [handleAnalyseFile]
+  );
+
+  const handleReAnalyse = useCallback(() => {
+    if (!files) {
+      return;
+    }
+    handleAnalyseFile(files);
+  }, [files, handleAnalyseFile]);
+
   return (
     <div className="main">
       <Typography variant="h4" align="center" sx={{ padding: "50px" }}>
@@ -271,6 +285,7 @@ const App = () => {
           onChange={handleFileChange}
           style={{ display: "none" }}
         />
+        {files && <Button onClick={handleReAnalyse}>Re-analyse</Button>}
       </Grid>
       <Grid container alignItems="center" justifyContent="center" spacing={2}>
         {errors.map((error, index) => (
