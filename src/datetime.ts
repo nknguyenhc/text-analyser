@@ -37,6 +37,14 @@ const dateStringToNumbers = (date: string): [number, number, number] => {
   return [day, month, year];
 };
 
+export const isDateString = (date: string): boolean => {
+  const [day, month, year] = dateStringToNumbers(date);
+  const isDayValid = !isNaN(day) && day >= 1 && day <= 31;
+  const isMonthValid = !isNaN(month) && month >= 0 && month <= 11;
+  const isYearValid = !isNaN(year) && year >= 0;
+  return isDayValid && isMonthValid && isYearValid;
+};
+
 export const dateStringToDayNumber = (date: string): number => {
   const [day, month, year] = dateStringToNumbers(date);
   const dateObj = new Date(year, month, day);

@@ -2,6 +2,7 @@ import {
   dateStringToDayNumber,
   dateStringToMonthNumber,
   dateStringToYearNumber,
+  isDateString,
   numberToDateString,
   numberToMonthString,
   numberToYearString,
@@ -171,6 +172,9 @@ const getFrequency = (doc: HTMLDivElement): TextFrequencies => {
   for (const message of allMessages) {
     if (message.classList.contains("service")) {
       const timeString = (message as HTMLElement).innerText;
+      if (!isDateString(timeString)) {
+        continue;
+      }
       dayNumber = dateStringToDayNumber(timeString);
       monthNumber = dateStringToMonthNumber(timeString);
       yearNumber = dateStringToYearNumber(timeString);
