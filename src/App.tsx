@@ -245,6 +245,17 @@ const App = () => {
       <Typography variant="h4" align="center" sx={{ padding: "50px" }}>
         Analyse your Telegram texts!
       </Typography>
+      <div className="main-text">
+        <Typography>
+          Upload your exported Telegram chat history HTML file, and we will
+          provide you with insights into your chat history!
+        </Typography>
+        <Typography>
+          <a href="https://telegram.org/blog/export-and-more">
+            How to export Telegram chats?
+          </a>
+        </Typography>
+      </div>
       <Grid container alignItems="center" justifyContent="center" spacing={2}>
         <label htmlFor="file-upload">
           <Button component="span">Upload File</Button>
