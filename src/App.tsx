@@ -15,6 +15,7 @@ import {
   YAxis,
 } from "recharts";
 import { getRandomColour } from "./utils";
+import { Payload } from "recharts/types/component/DefaultLegendContent";
 
 type TextCounts = {
   [key: string]: number;
@@ -59,17 +60,21 @@ const App = () => {
   }, [files]);
 
   const textCountData = useMemo(() => {
-    return Object.entries(textCounts).map(([name, count]) => ({
-      name,
-      count,
-    }));
+    return Object.entries(textCounts)
+      .sort((record1, record2) => record1[0].localeCompare(record2[0]))
+      .map(([name, count]) => ({
+        name,
+        count,
+      }));
   }, [textCounts]);
 
   const textGroupCountsData = useMemo(() => {
-    return Object.entries(textGroupCounts).map(([name, count]) => ({
-      name,
-      count,
-    }));
+    return Object.entries(textGroupCounts)
+      .sort((record1, record2) => record1[0].localeCompare(record2[0]))
+      .map(([name, count]) => ({
+        name,
+        count,
+      }));
   }, [textGroupCounts]);
 
   const colourMap = useMemo<ColourMap>(() => {
@@ -337,8 +342,10 @@ const Chart = ({
         <Tooltip />
         <Bar
           dataKey="count"
-          fill="purple"
-          activeBar={<Rectangle fill="pink" stroke="blue" />}
+          fill={getRandomColour()}
+          activeBar={
+            <Rectangle fill={getRandomColour()} stroke={getRandomColour()} />
+          }
         />
       </BarChart>
     </div>
@@ -371,7 +378,7 @@ const Graph = ({
         <XAxis dataKey="name" />
         <YAxis />
         <Tooltip />
-        <Line type="monotone" dataKey="count" stroke="blue" />
+        <Line type="monotone" dataKey="count" stroke={getRandomColour()} />
       </LineChart>
     </div>
   );
@@ -398,6 +405,17 @@ const MultiGraph = ({
     });
   }, [data, colourMap]);
 
+  const legendData = useMemo<Payload[]>(() => {
+    return Object.entries(colourMap)
+      .sort((map1, map2) => map1[0].localeCompare(map2[0]))
+      .map(([name, colour]) => ({
+        value: name,
+        type: "line",
+        id: name,
+        color: colour,
+      }));
+  }, [colourMap]);
+
   return (
     <div className="chart chart-lg">
       <div className="chart-text">
@@ -413,7 +431,7 @@ const MultiGraph = ({
           {Object.entries(colourMap).map(([name, colour]) => (
             <Line type="monotone" dataKey={name} stroke={colour} key={name} />
           ))}
-          <Legend />
+          <Legend payload={legendData} />
         </LineChart>
       </div>
     </div>
