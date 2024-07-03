@@ -47,8 +47,8 @@ export const isDateString = (date: string): boolean => {
 
 export const dateStringToDayNumber = (date: string): number => {
   const [day, month, year] = dateStringToNumbers(date);
-  const dateObj = new Date(year, month, day);
-  return dateObj.getTime() / 86400000;
+  const time = Date.UTC(year, month, day);
+  return time / 86400000;
 };
 
 export const dateStringToMonthNumber = (date: string): number => {
