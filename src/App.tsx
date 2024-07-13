@@ -255,6 +255,41 @@ const App = () => {
     handleAnalyseFile(files);
   }, [files, handleAnalyseFile]);
 
+  const handleDownload = useCallback(() => {
+    const data = JSON.stringify({
+      textCounts,
+      textGroupCounts,
+      day: {
+        total: dayFrequency,
+        individual: dayIndividualFrequency,
+      },
+      month: {
+        total: monthFrequency,
+        individual: monthIndividualFrequency,
+      },
+      year: {
+        total: yearFrequency,
+        individual: yearIndividualFrequency,
+      },
+    });
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "analysis.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [
+    textCounts,
+    textGroupCounts,
+    dayFrequency,
+    monthFrequency,
+    yearFrequency,
+    dayIndividualFrequency,
+    monthIndividualFrequency,
+    yearIndividualFrequency,
+  ]);
+
   return (
     <div className="main">
       <Typography variant="h4" align="center" sx={{ padding: "50px" }}>
@@ -288,6 +323,9 @@ const App = () => {
         />
         {files && <Button onClick={handleReAnalyse}>Re-analyse</Button>}
       </Grid>
+      {isResultAvailable && (
+        <Button onClick={handleDownload}>Download Analysis</Button>
+      )}
       <Grid container alignItems="center" justifyContent="center" spacing={2}>
         {errors.map((error, index) => (
           <Typography key={index} color="error">
