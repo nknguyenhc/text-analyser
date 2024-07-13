@@ -1,12 +1,12 @@
 {
   "files": {
     "main.css": "/text-analyser/static/css/main.8580f84f.css",
-    "main.js": "/text-analyser/static/js/main.5c399c1f.js",
+    "main.js": "/text-analyser/static/js/main.d691d961.js",
     "static/js/206.06aee859.chunk.js": "/text-analyser/static/js/206.06aee859.chunk.js",
     "index.html": "/text-analyser/index.html"
   },
   "entrypoints": [
     "static/css/main.8580f84f.css",
-    "static/js/main.5c399c1f.js"
+    "static/js/main.d691d961.js"
   ]
 }
