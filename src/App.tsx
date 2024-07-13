@@ -210,7 +210,7 @@ const App = () => {
       const names: Set<string> = new Set();
       let isAtLeastOneFileValid: boolean = false;
       for (const file of files) {
-        isAtLeastOneFileValid ||= await readFile(
+        const isThisFileValid = await readFile(
           file,
           textCounts,
           textGroupCounts,
@@ -219,6 +219,7 @@ const App = () => {
           names,
           errors
         );
+        isAtLeastOneFileValid ||= isThisFileValid;
       }
       setIsResultAvailable(isAtLeastOneFileValid);
       setFiles(files);
