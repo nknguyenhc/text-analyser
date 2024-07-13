@@ -140,18 +140,18 @@ const App = () => {
         yearIndividualFrequency,
       ] = individualFrequencies;
       const reader = new FileReader();
-      return new Promise<void>((resolve) => {
+      return new Promise<boolean>((resolve) => {
         reader.onload = (e) => {
           const fileContent = e.target?.result;
           if (typeof fileContent !== "string") {
             errors.push("Failed to read file content");
-            resolve();
+            resolve(false);
             return;
           }
           const analysisResult = analyse(file.name, fileContent);
           if (!analysisResult.success) {
             errors.push(analysisResult.error!);
-            resolve();
+            resolve(false);
             return;
           }
           const result = analysisResult.result!;
@@ -182,7 +182,7 @@ const App = () => {
           for (const name of result.names) {
             names.add(name);
           }
-          resolve();
+          resolve(true);
         };
         reader.readAsText(file);
       });
@@ -208,8 +208,9 @@ const App = () => {
         yearIndividualFrequency,
       ];
       const names: Set<string> = new Set();
+      let isAtLeastOneFileValid: boolean = false;
       for (const file of files) {
-        await readFile(
+        isAtLeastOneFileValid ||= await readFile(
           file,
           textCounts,
           textGroupCounts,
@@ -219,7 +220,7 @@ const App = () => {
           errors
         );
       }
-      setIsResultAvailable(true);
+      setIsResultAvailable(isAtLeastOneFileValid);
       setFiles(files);
       setErrors(errors);
       setTextCounts(textCounts);
