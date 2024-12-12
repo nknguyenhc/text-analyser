@@ -1,7 +1,7 @@
 {
   "name": "text-analyser",
   "version": "0.1.0",
-  "homepage": "https://nknguyenhc.github.io/text-analyser",
+  "homepage": "https://text-analyser.nknguyenhc.net/",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.11.4",
@@ -23,7 +23,7 @@
   },
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
+    "deploy": "gh-pages -d build --cname text-analyser.nknguyenhc.net",
     "start": "react-scripts start",
     "build": "set \"GENERATE_SOURCEMAP=false\" && react-scripts build",
     "test": "react-scripts test",
